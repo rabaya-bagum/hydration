@@ -1,4 +1,4 @@
-import { addDays, dayKey, daysBetween, lastNDays, minutesOfDay, monthGrid, weekdayIndex } from '@/domain/dates';
+import { addDays, dayKey, daysBetween, formatDayLabel, formatMinutes, lastNDays, minutesOfDay, monthGrid, weekdayIndex } from '@/domain/dates';
 
 describe('dates', () => {
   it('buckets by the log timezone, not UTC', () => {
@@ -38,7 +38,6 @@ describe('dates', () => {
   it('lastNDays', () => { expect(lastNDays('2024-03-10', 3)).toEqual(['2024-03-08', '2024-03-09', '2024-03-10']); });
 });
 
-import { formatDayLabel, formatMinutes } from '@/domain/dates';
 describe('labels', () => {
   it('formats day and minute labels', () => {
     expect(formatDayLabel('2026-10-04')).toBe('4 Oct');
