@@ -88,3 +88,11 @@ export function localDate(day: DayKey, minutes: number): Date {
   const [y, m, d] = day.split('-').map(Number) as [number, number, number];
   return new Date(y, m - 1, d, Math.floor(minutes / 60), minutes % 60, 0, 0);
 }
+
+/** "07:30" or "7:30 AM" from minutes since midnight. */
+export function formatMinutes(min: number, hour12 = false): string {
+  const h = Math.floor(min / 60) % 24;
+  const m = String(min % 60).padStart(2, '0');
+  if (!hour12) return `${String(h).padStart(2, '0')}:${m}`;
+  return `${h % 12 || 12}:${m} ${h < 12 ? 'AM' : 'PM'}`;
+}

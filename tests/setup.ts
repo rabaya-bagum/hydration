@@ -1,3 +1,5 @@
+import { randomUUID as mockRandomUUID } from 'crypto';
+
 jest.mock('@react-native-async-storage/async-storage', () => {
   const store = new Map<string, string>();
   return {
@@ -15,4 +17,4 @@ jest.mock('expo-haptics', () => ({
   ImpactFeedbackStyle: { Light: 'light', Medium: 'medium', Heavy: 'heavy' },
   NotificationFeedbackType: { Success: 'success' },
 }));
-jest.mock('expo-crypto', () => ({ randomUUID: () => require('crypto').randomUUID() }));
+jest.mock('expo-crypto', () => ({ randomUUID: () => mockRandomUUID() }));

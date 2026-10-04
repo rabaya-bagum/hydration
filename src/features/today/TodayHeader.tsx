@@ -1,8 +1,8 @@
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Text } from '@/components/Text';
 import { useTheme } from '@/design/theme';
-import { radius, spacing, touch } from '@/design/tokens';
+import { radius, spacing } from '@/design/tokens';
 import { greetingFor } from '@/domain/dates';
 import { IconButton } from '@/components/IconButton';
 

@@ -1,4 +1,3 @@
-import { View } from 'react-native';
 import { spacing } from '@/design/tokens';
 import { Card } from './Card';
 import { Text } from './Text';

@@ -45,7 +45,8 @@ export function DrinkForm({ initial, submitLabel, tz, onSubmit }: Props) {
   const amountError = volumeMl === null ? 'Enter an amount greater than zero.' : volumeMl > MAX_SINGLE_LOG_ML ? `That's a lot for one entry. Max ${formatVolume(MAX_SINGLE_LOG_ML, unit)}.` : undefined;
 
   const day = dayKey(initial?.loggedAt ?? new Date(), tz);
-  const bounds = useMemo(() => ({ min: localDate(day, 0).getTime(), max: Math.min(Date.now(), localDate(day, 24 * 60).getTime() - 1) }), [day]);
+  const [openedAt] = useState(() => Date.now());
+  const bounds = useMemo(() => ({ min: localDate(day, 0).getTime(), max: Math.min(openedAt, localDate(day, 24 * 60).getTime() - 1) }), [day, openedAt]);
   const shift = (mins: number) => setAt((d) => new Date(Math.min(bounds.max, Math.max(bounds.min, d.getTime() + mins * 60_000))));
 
   const recents = useMemo(() => {

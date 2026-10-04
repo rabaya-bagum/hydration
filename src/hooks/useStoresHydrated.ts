@@ -1,18 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import { useLogsStore } from '@/store/logsStore';
 import { useSettingsStore } from '@/store/settingsStore';
 
 const ready = () => useLogsStore.persist.hasHydrated() && useSettingsStore.persist.hasHydrated();
 
+function subscribe(onChange: () => void) {
+  const a = useLogsStore.persist.onFinishHydration(onChange);
+  const b = useSettingsStore.persist.onFinishHydration(onChange);
+  return () => { a(); b(); };
+}
+
+/** True once both persisted stores have loaded from disk. */
 export function useStoresHydrated(): boolean {
-  const [ok, setOk] = useState(ready);
-  useEffect(() => {
-    if (ready()) { setOk(true); return; }
-    const check = () => ready() && setOk(true);
-    const a = useLogsStore.persist.onFinishHydration(check);
-    const b = useSettingsStore.persist.onFinishHydration(check);
-    check();
-    return () => { a(); b(); };
-  }, []);
-  return ok;
+  return useSyncExternalStore(subscribe, ready, () => false);
 }

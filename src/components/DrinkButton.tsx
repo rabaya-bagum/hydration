@@ -15,7 +15,7 @@ export function DrinkButton({ title, subtitle, onPress, accessibilityLabel, acce
     <Animated.View style={[{ flex: 1 }, style]}>
       <Pressable
         testID={testID} accessibilityRole="button" accessibilityLabel={accessibilityLabel}
-        onPress={() => { s.value = withSequence(withTiming(0.92, { duration: 80 }), withTiming(1, { duration: motion.base })); onPress(); }}
+        onPress={() => { s.set(withSequence(withTiming(0.92, { duration: 80 }), withTiming(1, { duration: motion.base }))); onPress(); }}
         style={[styles.base, shadow.button, { backgroundColor: accent ? colors.primary : colors.surface, borderColor: accent ? colors.primary : colors.border }]}
       >
         <Text variant="title" bold color={accent ? colors.onPrimary : colors.primary}>{title}</Text>

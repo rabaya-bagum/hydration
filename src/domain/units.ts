@@ -39,3 +39,9 @@ export function parseVolumeInput(text: string, system: UnitSystem): number | nul
 
 export const formatWeight = (kg: number, system: UnitSystem) =>
   system === 'imperial' ? `${Math.round(kgToLb(kg))} lb` : `${Math.round(kg)} kg`;
+
+export function formatHeight(cm: number, system: UnitSystem): string {
+  if (system === 'metric') return `${Math.round(cm)} cm`;
+  const totalIn = Math.round(cm / 2.54);
+  return `${Math.floor(totalIn / 12)}′ ${totalIn % 12}″`;
+}
