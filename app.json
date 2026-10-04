@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "Plink",
+    "slug": "plink",
+    "scheme": "plink",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": { "supportsTablet": false, "bundleIdentifier": "app.plink.hydration" },
+    "android": { "package": "app.plink.hydration" },
+    "plugins": ["expo-router", ["expo-notifications", { "color": "#1E88E5" }]],
+    "experiments": { "typedRoutes": false }
+  }
+}
