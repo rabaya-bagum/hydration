@@ -82,3 +82,9 @@ export function greetingFor(hour: number): string {
   if (hour < 18) return 'Good afternoon';
   return 'Good evening';
 }
+
+/** Device-local Date for a day key + minutes-of-day (DST-safe: Date normalises nonexistent times). */
+export function localDate(day: DayKey, minutes: number): Date {
+  const [y, m, d] = day.split('-').map(Number) as [number, number, number];
+  return new Date(y, m - 1, d, Math.floor(minutes / 60), minutes % 60, 0, 0);
+}

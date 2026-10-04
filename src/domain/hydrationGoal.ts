@@ -25,7 +25,8 @@ export const GOAL_CONFIG = {
   overGoalNoteRatio: 1.5,
 } as const;
 
-export type GoalConfig = typeof GOAL_CONFIG;
+type Widen<T> = { [K in keyof T]: T[K] extends number ? number : Widen<T[K]> };
+export type GoalConfig = Widen<typeof GOAL_CONFIG>;
 
 const ACTIVITY_LABEL = { low: 'Low activity', moderate: 'Moderate activity', high: 'High activity', very_high: 'Very high activity' } as const;
 const CLIMATE_LABEL = { cool: 'Cool climate', mild: 'Mild climate', warm: 'Warm climate', hot: 'Hot climate' } as const;
