@@ -10,9 +10,9 @@ import { SettingRow } from '@/components/SettingRow';
 import { Text } from '@/components/Text';
 import { getCharacter } from '@/content/characters';
 import { spacing } from '@/design/tokens';
-import { CharacterPicker } from '@/features/onboarding/CharacterStep';
 import { formatVolume } from '@/domain/units';
 import { useHydration } from '@/hooks/useHydration';
+import { useProgress } from '@/hooks/useProgress';
 import { authService, useSession } from '@/services/auth';
 import { useSettingsStore } from '@/store/settingsStore';
 
@@ -23,6 +23,7 @@ export default function ProfileScreen() {
   const s = useSettingsStore();
   const { goalMl } = useHydration();
   const session = useSession();
+  const progress = useProgress();
   const c = getCharacter(s.characterId);
   return (
     <Screen>
@@ -55,10 +56,10 @@ export default function ProfileScreen() {
         <SettingRow label="Reminders" value={s.reminders.enabled ? MODE_LABEL[s.reminders.mode] : 'Off'} onPress={() => router.push('/settings/reminders')} testID="row-reminders" />
       </Section>
 
-      <View style={{ gap: spacing.sm }}>
-        <Text variant="small" bold muted style={{ marginLeft: spacing.sm }}>COMPANION</Text>
-        <CharacterPicker value={s.characterId} onChange={(characterId) => s.patch({ characterId })} />
-      </View>
+      <Section title="Progress">
+        <SettingRow label="Level & badges" value={`Level ${progress.level}`} onPress={() => router.push('/achievements')} testID="row-badges" />
+        <SettingRow label="Companions & cosmetics" value={c.name} onPress={() => router.push('/characters')} testID="row-characters" />
+      </Section>
 
       <Section title="Account & privacy">
         {session ? <SettingRow label="Signed in" value={session.user.email ?? ''} /> : <SettingRow label="Sign in or create account" hint={authService.available ? 'Back up and sync your drinks' : 'Cloud sync is not set up in this build'} onPress={() => router.push('/auth')} />}

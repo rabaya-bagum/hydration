@@ -11,6 +11,8 @@ import { Segmented } from '@/components/Segmented';
 import { StatCard } from '@/components/StatCard';
 import { Text } from '@/components/Text';
 import { spacing } from '@/design/tokens';
+import { InsightsCard } from '@/features/history/InsightsCard';
+import { bestDay, timeOfDayShares } from '@/domain/insights';
 import { Breakdown } from '@/features/history/Breakdown';
 import { MonthCalendar } from '@/features/history/MonthCalendar';
 import { WeekChart } from '@/features/history/WeekChart';
@@ -55,6 +57,10 @@ export default function HistoryScreen() {
 
   const rangeDays = (mode === 'month' ? monthDays : weekDays).filter((d) => d <= today);
   const stats = useMemo(() => rangeStats(summaries, rangeDays, tz), [summaries, rangeDays, tz]);
+  const prevDays = useMemo(() => (mode === 'month' ? (() => { const pm = shiftMonth(selected, -1); const [py, pmm] = pm.split('-').map(Number) as [number, number]; const n = new Date(Date.UTC(py, pmm, 0)).getUTCDate(); return Array.from({ length: n }, (_, i) => `${py}-${String(pmm).padStart(2, '0')}-${String(i + 1).padStart(2, '0')}`); })() : weekDays.map((d) => addDays(d, -7))), [mode, selected, weekDays]);
+  const prevStats = useMemo(() => rangeStats(summaries, prevDays, tz), [summaries, prevDays, tz]);
+  const shares = useMemo(() => timeOfDayShares(logs, new Set(rangeDays)), [logs, rangeDays]);
+  const best = useMemo(() => bestDay(summaries, rangeDays), [summaries, rangeDays]);
   const dayLogs = useMemo(() => logs.filter((l) => !l.deletedAt && dayKey(l.loggedAt, l.tz) === selected).sort((a, b) => b.loggedAt.localeCompare(a.loggedAt)), [logs, selected]);
   const daySummary = summaries.get(selected);
   const dayGoal = daySummary?.goalMl ?? goalMl;
@@ -118,6 +124,7 @@ export default function HistoryScreen() {
             <StatCard label="Longest streak" value={`${streak.longest} day${streak.longest === 1 ? '' : 's'}`} />
             <StatCard label="Avg goal time" value={avgTime} hint="when goal was reached" />
           </View>
+          <InsightsCard unit={unit} avgMl={stats.avgMl} prevAvgMl={prevStats.avgMl} shares={shares} best={best} periodLabel={mode === 'month' ? 'month' : 'week'} />
           {stats.byDrink.length ? (
             <Card style={{ gap: spacing.md }}>
               <Text variant="title" accessibilityRole="header">What you drank</Text>

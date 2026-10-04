@@ -27,6 +27,8 @@ export interface SettingsState {
   drinkTypes: DrinkType[];
   favoriteDrinkIds: string[];
   characterId: string;
+  accessoryId: string;
+  sceneId: string;
   reminders: ReminderPrefs;
   hour12: boolean;
 
@@ -44,9 +46,16 @@ const initial = {
   onboarded: false, name: '', ageRange: 'unspecified' as AgeRange, activity: 'moderate' as ActivityLevel,
   climate: 'mild' as Climate, exerciseDays: 2, caffeineCups: 1, unitSystem: 'metric' as UnitSystem,
   goalMl: 2200, goalHistory: [] as GoalHistoryEntry[], weighting: false, containers: DEFAULT_CONTAINERS,
-  drinkTypes: DEFAULT_DRINK_TYPES, favoriteDrinkIds: ['water', 'tea', 'coffee', 'juice'], characterId: 'otto',
+  drinkTypes: DEFAULT_DRINK_TYPES, favoriteDrinkIds: ['water', 'tea', 'coffee', 'juice'], characterId: 'otto', accessoryId: 'none', sceneId: 'day',
   reminders: DEFAULT_REMINDER_PREFS, hour12: false,
 };
+
+/** Exported for tests. Adds any built-in drink types and cosmetic defaults missing from older saves. */
+export function migrateSettings(old: Partial<SettingsState>): SettingsState {
+  const have = new Set((old.drinkTypes ?? []).map((d) => d.id));
+  const missing = DEFAULT_DRINK_TYPES.filter((d) => !have.has(d.id));
+  return { ...initial, ...old, drinkTypes: [...(old.drinkTypes ?? DEFAULT_DRINK_TYPES), ...missing], accessoryId: old.accessoryId ?? 'none', sceneId: old.sceneId ?? 'day' } as SettingsState;
+}
 
 export const useSettingsStore = create<SettingsState>()(
   persist(
@@ -77,6 +86,9 @@ export const useSettingsStore = create<SettingsState>()(
     {
       name: 'plink.settings.v1',
       storage: jsonStorage,
+      version: 2,
+      // v1 -> v2: new built-in drinks and cosmetics for users who already have saved settings
+      migrate: (persisted) => migrateSettings(persisted as Partial<SettingsState>),
       partialize: ({ patch: _p, setGoal: _s, goalFor: _g, patchReminders: _r, upsertContainer: _u, removeContainer: _x, addCustomDrink: _a, resetAll: _ra, ...data }) => data,
     },
   ),

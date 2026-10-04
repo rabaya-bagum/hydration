@@ -8,6 +8,7 @@ export const DEFAULT_DRINK_TYPES: DrinkType[] = [
   { id: 'milk', name: 'Milk', icon: '🥛', hydrationFactor: 1, caffeinated: false },
   { id: 'sports', name: 'Sports drink', icon: '🥤', hydrationFactor: 1, caffeinated: false },
   { id: 'soda', name: 'Soda', icon: '🫧', hydrationFactor: 0.85, caffeinated: true },
+  { id: 'infused', name: 'Infused water', icon: '🍋', hydrationFactor: 1, caffeinated: false },
   { id: 'other', name: 'Other', icon: '✨', hydrationFactor: 0.9, caffeinated: false },
 ];
 

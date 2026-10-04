@@ -1,5 +1,7 @@
 import { deviceTimeZone, dayKey } from '@/domain/dates';
 import { encouragement } from '@/domain/messages';
+import { getCharacter } from '@/content/characters';
+import { formatVolume } from '@/domain/units';
 import { buildSummaries, countedMl } from '@/domain/progress';
 import type { DrinkLog, LogSource } from '@/domain/types';
 import { analytics } from '@/services/analytics';
@@ -47,7 +49,7 @@ export function logDrink(input: LogDrinkInput): DrinkLog {
   if (before < goal && after >= goal) {
     haptics.success();
     analytics.track('goal_reached');
-    ui.triggerCelebration(goal);
+    ui.triggerCelebration({ title: 'Goal reached!', body: `${formatVolume(goal, settings.unitSystem)} done. ${getCharacter(settings.characterId).name} is doing a happy dance.` });
   } else {
     haptics.log();
   }

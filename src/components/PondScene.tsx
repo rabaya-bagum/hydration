@@ -20,14 +20,17 @@ function Fade({ show, children }: { show: boolean; children: React.ReactNode }) 
   return <AnimatedG animatedProps={props}>{children}</AnimatedG>;
 }
 
-interface Props { ratio: number; characterId: string; width: number }
+interface Props { ratio: number; characterId: string; width: number; accessoryId?: string; sceneId?: string }
+
+const SUNSET = { skyTop: '#FF9E7A', skyBottom: '#FFE0B8', waterTop: '#9A8CF2', waterBottom: '#3E4FB8', sun: '#FF6B6B' };
 
 /**
  * The living pond: water rises with intake and scenery appears at 25/50/75/100%.
  * Purely decorative (hidden from a11y tree): the numeric progress is announced by HydrationHero.
  */
-export function PondScene({ ratio, characterId, width }: Props) {
-  const { colors } = useTheme();
+export function PondScene({ ratio, characterId, width, accessoryId, sceneId }: Props) {
+  const theme = useTheme();
+  const colors = sceneId === 'sunset' ? { ...theme.colors, ...SUNSET } : theme.colors;
   const reduce = useReduceMotion();
   const level = useSharedValue(0);
   const phase = useSharedValue(0);
@@ -72,7 +75,7 @@ export function PondScene({ ratio, characterId, width }: Props) {
         </Fade>
       </Svg>
       <Animated.View style={[{ position: 'absolute', left: width / 2 - 48 }, mascotStyle]}>
-        <Mascot characterId={characterId} mood={moodForProgress(clamped)} size={96} />
+        <Mascot characterId={characterId} mood={moodForProgress(clamped)} size={96} accessoryId={accessoryId} />
       </Animated.View>
     </View>
   );

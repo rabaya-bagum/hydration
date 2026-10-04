@@ -4,10 +4,8 @@ import Animated, { Easing, FadeIn, FadeOut, useAnimatedStyle, useSharedValue, wi
 import { useReduceMotion } from '@/design/a11y';
 import { useTheme } from '@/design/theme';
 import { motion, radius, spacing } from '@/design/tokens';
-import { formatVolume } from '@/domain/units';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useUiStore } from '@/store/uiStore';
-import { getCharacter } from '@/content/characters';
 import { Mascot } from './Mascot';
 import { Text } from './Text';
 
@@ -28,7 +26,6 @@ function Drop({ index, reduce }: { index: number; reduce: boolean }) {
 export function Celebration() {
   const c = useUiStore((s) => s.celebrate);
   const end = useUiStore((s) => s.endCelebration);
-  const unit = useSettingsStore((s) => s.unitSystem);
   const characterId = useSettingsStore((s) => s.characterId);
   const reduce = useReduceMotion();
   const { colors } = useTheme();
@@ -42,10 +39,10 @@ export function Celebration() {
     <Animated.View key={c.id} entering={FadeIn.duration(motion.base)} exiting={FadeOut.duration(motion.base)} style={[StyleSheet.absoluteFill, { backgroundColor: colors.scrim, alignItems: 'center', justifyContent: 'center' }]}>
       <Pressable accessibilityRole="button" accessibilityLabel="Dismiss celebration" onPress={end} style={StyleSheet.absoluteFill} />
       {Array.from({ length: PIECES }, (_, i) => <Drop key={i} index={i} reduce={reduce} />)}
-      <View accessibilityLiveRegion="assertive" accessible accessibilityLabel={`Goal reached! ${formatVolume(c.goalMl, unit)} done for today.`} style={{ backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.xl, alignItems: 'center', gap: spacing.sm, marginHorizontal: spacing.xl }} pointerEvents="none">
+      <View accessibilityLiveRegion="assertive" accessible accessibilityLabel={`${c.title}. ${c.body}`} style={{ backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.xl, alignItems: 'center', gap: spacing.sm, marginHorizontal: spacing.xl }} pointerEvents="none">
         <Mascot characterId={characterId} mood="cheer" size={120} />
-        <Text variant="h1" center>Goal reached!</Text>
-        <Text muted center>{formatVolume(c.goalMl, unit)} done. {getCharacter(characterId).name} is doing a happy dance.</Text>
+        <Text variant="h1" center>{c.glyph ? `${c.glyph} ` : ''}{c.title}</Text>
+        <Text muted center>{c.body}</Text>
       </View>
     </Animated.View>
   );

@@ -102,6 +102,46 @@ function chromePath() {
     await page.waitForTimeout(600); await shot('celebration');
     await heroHas(/3\.55 litres of 3\.15 litres, 113 percent/, 'goal reached, continues past 100% neutrally');
 
+    // rewards: badges earned from the logs above
+    await page.getByTestId('tab-challenges').click();
+    await shot('challenges-empty');
+    assert.ok(await page.getByText('Pick a challenge to start building momentum.').first().isVisible(), 'empty challenge state');
+    await page.getByTestId('open-achievements').click();
+    await page.waitForSelector('text=Current ');
+    assert.ok(await page.getByText('✓ Earned · +10 XP').first().isVisible(), 'first sip badge earned');
+    assert.ok(await page.getByText('✓ Earned · +25 XP').first().isVisible(), 'first goal badge earned');
+    await shot('achievements');
+    await page.goBack();
+
+    // start a challenge, see it on Today
+    await page.getByTestId('challenge-steady-sipper').click();
+    await page.getByTestId('start-challenge').click();
+    await page.waitForSelector('[aria-label="1 of 5 days completed"]', { timeout: 5000 }); // today already has 4+ drinks -> 1 of 5 days
+    await shot('challenge-progress');
+    await page.goBack();
+
+    // Learn: open article, bookmark, filter saved
+    await page.getByTestId('tab-learn').click();
+    await page.getByTestId('article-morning-glass').click();
+    await page.getByRole('heading', { name: 'The one-glass morning start' }).waitFor();
+    await page.getByTestId('bookmark').click();
+    await shot('article');
+    await page.goBack();
+    await page.getByTestId('filter-saved').click();
+    assert.ok(await page.getByTestId('article-morning-glass').isVisible(), 'saved filter shows bookmarked article');
+    await shot('learn-saved');
+
+    // companions screen: locked ones are labelled
+    await page.getByTestId('tab-profile').click();
+    await page.getByTestId('row-characters').click();
+    await page.getByRole('heading', { name: 'Companions' }).waitFor();
+    assert.ok(await page.getByText('🔒 Reach level 5').first().isVisible(), 'locked companion shows requirement');
+    await shot('characters');
+    await page.goBack();
+    await page.getByTestId('tab-today').click();
+    assert.ok(await page.getByTestId('challenge-steady-sipper').first().isVisible(), 'active challenge card on Today');
+    await shot('today-with-challenge');
+
     // persistence
     await page.reload();
     await page.waitForSelector('[data-testid="hero-summary"]', { timeout: 15000 });

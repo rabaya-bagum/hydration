@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Celebration } from '@/components/Celebration';
 import { Toast } from '@/components/Toast';
 import { SplashView } from '@/features/today/SplashView';
+import { useRewardSync } from '@/hooks/useRewardSync';
 import { useReminderSync } from '@/hooks/useReminderSync';
 import { useStoresHydrated } from '@/hooks/useStoresHydrated';
 import { useSyncEngine } from '@/hooks/useSyncEngine';
@@ -14,6 +15,7 @@ import { useTheme } from '@/design/theme';
 function Background() {
   useSyncEngine();
   useReminderSync();
+  useRewardSync();
   return null;
 }
 

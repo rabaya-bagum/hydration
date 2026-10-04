@@ -1,17 +1,18 @@
 import { create } from 'zustand';
 
+export interface Celebration { id: number; title: string; body: string; glyph?: string }
 export interface ToastData { id: number; message: string; actionLabel?: string; onAction?: () => void }
 
 interface UiState {
   toast?: ToastData;
   online: boolean;
   syncing: boolean;
-  celebrate?: { id: number; goalMl: number };
+  celebrate?: Celebration;
   showToast: (message: string, action?: { label: string; run: () => void }) => void;
   hideToast: () => void;
   setOnline: (o: boolean) => void;
   setSyncing: (s: boolean) => void;
-  triggerCelebration: (goalMl: number) => void;
+  triggerCelebration: (c: Omit<Celebration, 'id'>) => void;
   endCelebration: () => void;
 }
 
@@ -23,6 +24,6 @@ export const useUiStore = create<UiState>((set) => ({
   hideToast: () => set({ toast: undefined }),
   setOnline: (online) => set({ online }),
   setSyncing: (syncing) => set({ syncing }),
-  triggerCelebration: (goalMl) => set({ celebrate: { id: ++seq, goalMl } }),
+  triggerCelebration: (c) => set({ celebrate: { ...c, id: ++seq } }),
   endCelebration: () => set({ celebrate: undefined }),
 }));

@@ -9,10 +9,10 @@ import { Card } from './Card';
 import { PondScene } from './PondScene';
 import { Text } from './Text';
 
-interface Props { totalMl: number; goalMl: number; unitSystem: UnitSystem; characterId: string }
+interface Props { totalMl: number; goalMl: number; unitSystem: UnitSystem; characterId: string; accessoryId?: string; sceneId?: string }
 
 /** Hero: animated pond + big numbers + message. State is conveyed by pond, number, percent AND text. */
-export function HydrationHero({ totalMl, goalMl, unitSystem, characterId }: Props) {
+export function HydrationHero({ totalMl, goalMl, unitSystem, characterId, accessoryId, sceneId }: Props) {
   const [w, setW] = useState(300);
   const pct = percentOf(totalMl, goalMl);
   const big = splitVolume(totalMl, unitSystem);
@@ -20,7 +20,7 @@ export function HydrationHero({ totalMl, goalMl, unitSystem, characterId }: Prop
   return (
     <Card style={{ gap: spacing.md, padding: spacing.md }}>
       <View onLayout={(e) => setW(Math.max(200, Math.round(e.nativeEvent.layout.width)))}>
-        <PondScene ratio={totalMl / goalMl} characterId={characterId} width={w} />
+        <PondScene ratio={totalMl / goalMl} characterId={characterId} accessoryId={accessoryId} sceneId={sceneId} width={w} />
       </View>
       <View accessible accessibilityRole="progressbar" accessibilityLabel={summary} accessibilityValue={{ min: 0, max: 100, now: Math.min(pct, 100) }} style={{ alignItems: 'center', gap: spacing.xs }} testID="hero-summary">
         <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: spacing.sm }}>

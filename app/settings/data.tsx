@@ -10,6 +10,7 @@ import { buildExport } from '@/data/exportData';
 import { supabase } from '@/data/supabase';
 import { spacing } from '@/design/tokens';
 import { useLogsStore } from '@/store/logsStore';
+import { useRewardsStore } from '@/store/rewardsStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useUiStore } from '@/store/uiStore';
 
@@ -20,7 +21,7 @@ export default function DataSettings() {
 
   const exportData = async () => {
     try {
-      const json = JSON.stringify(buildExport(useSettingsStore.getState(), useLogsStore.getState().logs), null, 2);
+      const json = JSON.stringify(buildExport(useSettingsStore.getState(), useLogsStore.getState().logs, useRewardsStore.getState()), null, 2);
       await Share.share({ title: 'Plink data export', message: json });
     } catch {
       useUiStore.getState().showToast('Could not open the share sheet.');
@@ -38,6 +39,7 @@ export default function DataSettings() {
       }
     }
     useLogsStore.getState().clear();
+    useRewardsStore.getState().clear();
     useSettingsStore.getState().resetAll();
     setBusy(false);
     router.replace('/welcome');
