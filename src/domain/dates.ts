@@ -96,3 +96,10 @@ export function formatMinutes(min: number, hour12 = false): string {
   if (!hour12) return `${String(h).padStart(2, '0')}:${m}`;
   return `${h % 12 || 12}:${m} ${h < 12 ? 'AM' : 'PM'}`;
 }
+
+const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+/** "4 Oct" — locale-independent so tests and UI agree. */
+export function formatDayLabel(key: DayKey): string {
+  const [, m, d] = key.split('-').map(Number) as [number, number, number];
+  return `${d} ${MONTH_ABBR[m - 1]}`;
+}

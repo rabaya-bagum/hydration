@@ -41,9 +41,9 @@ export function PondScene({ ratio, characterId, width }: Props) {
 
   const waveProps = useAnimatedProps(() => {
     const top = H - 28 - level.value * MAX_WATER;
-    let d = `M0 ${top}`;
-    for (let x = 0; x <= width; x += 10) d += ` L${x} ${top + Math.sin((x / width) * Math.PI * 3 + phase.value) * 4}`;
-    return { d: `${d} L${width} ${H} L0 ${H} Z` };
+    let d = `M-10 ${top}`;
+    for (let x = -10; x <= width + 10; x += 10) d += ` L${x} ${top + Math.sin((x / width) * Math.PI * 3 + phase.value) * 4}`;
+    return { d: `${d} L${width + 10} ${H} L-10 ${H} Z` };
   });
   const mascotStyle = useAnimatedStyle(() => ({ transform: [{ translateY: H - 28 - level.value * MAX_WATER - 78 }] }));
 

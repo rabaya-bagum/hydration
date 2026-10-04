@@ -37,3 +37,13 @@ describe('dates', () => {
   });
   it('lastNDays', () => { expect(lastNDays('2024-03-10', 3)).toEqual(['2024-03-08', '2024-03-09', '2024-03-10']); });
 });
+
+import { formatDayLabel, formatMinutes } from '@/domain/dates';
+describe('labels', () => {
+  it('formats day and minute labels', () => {
+    expect(formatDayLabel('2026-10-04')).toBe('4 Oct');
+    expect(formatMinutes(7 * 60 + 5)).toBe('07:05');
+    expect(formatMinutes(13 * 60, true)).toBe('1:00 PM');
+    expect(formatMinutes(0, true)).toBe('12:00 AM');
+  });
+});

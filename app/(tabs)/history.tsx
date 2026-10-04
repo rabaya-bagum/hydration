@@ -18,7 +18,7 @@ import { EntrySheet } from '@/features/logging/EntrySheet';
 import { Timeline } from '@/features/today/Timeline';
 import { useHydration } from '@/hooks/useHydration';
 import { rangeStats, weekSummary } from '@/domain/analytics';
-import { addDays, dayKey, formatClock, startOfWeek, type DayKey } from '@/domain/dates';
+import { addDays, dayKey, formatClock, formatDayLabel, startOfWeek, type DayKey } from '@/domain/dates';
 import { percentOf } from '@/domain/progress';
 import type { DrinkLog } from '@/domain/types';
 import { formatVolume } from '@/domain/units';
@@ -67,7 +67,7 @@ export default function HistoryScreen() {
   };
   const atEnd = mode === 'day' ? selected >= today : mode === 'week' ? addDays(weekStart, 7) > today : shiftMonth(selected, 1) > today;
 
-  const title = mode === 'day' ? (selected === today ? 'Today' : selected) : mode === 'week' ? `${weekDays[0]} – ${weekDays[6]}` : `${MONTHS[m - 1]} ${y}`;
+  const title = mode === 'day' ? (selected === today ? 'Today' : formatDayLabel(selected)) : mode === 'week' ? `${formatDayLabel(weekDays[0]!)} – ${formatDayLabel(weekDays[6]!)}` : `${MONTHS[m - 1]} ${y}`;
   const avgTime = stats.avgGoalReachedMinute !== undefined
     ? formatClock(new Date(Date.UTC(2000, 0, 1, 0, stats.avgGoalReachedMinute)).toISOString(), 'UTC', hour12)
     : '—';

@@ -3,7 +3,7 @@ import { DrinkButton } from '@/components/DrinkButton';
 import { Chip } from '@/components/Chip';
 import { Text } from '@/components/Text';
 import { spacing } from '@/design/tokens';
-import { formatVolume, spokenVolume } from '@/domain/units';
+import { spokenVolume, splitVolume } from '@/domain/units';
 import { logDrink } from '@/features/logging/logActions';
 import { useSettingsStore } from '@/store/settingsStore';
 
@@ -29,7 +29,7 @@ export function QuickAdd({ drinkId, onDrinkChange, onOpenAdd }: Props) {
       </View>
       <View style={{ flexDirection: 'row', gap: spacing.sm }}>
         {favorites.map((c, i) => (
-          <DrinkButton key={c.id} testID={`quick-add-${c.volumeMl}`} title={`+${formatVolume(c.volumeMl, unit).replace(' ', ' ')}`} subtitle={c.name}
+          <DrinkButton key={c.id} testID={`quick-add-${c.volumeMl}`} title={`+${splitVolume(c.volumeMl, unit).value}`} subtitle={`${splitVolume(c.volumeMl, unit).unit} · ${c.name}`}
             accessibilityLabel={`Add ${spokenVolume(c.volumeMl, unit)} of ${drink.name}`} accent={i === 0} onPress={() => logDrink({ drinkTypeId: drink.id, volumeMl: c.volumeMl, containerId: c.id })} />
         ))}
         <DrinkButton testID="quick-add-custom" title="＋" subtitle="Custom" accessibilityLabel="Add a drink with custom details" onPress={onOpenAdd} />
