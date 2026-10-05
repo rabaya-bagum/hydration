@@ -5,12 +5,42 @@
     "scheme": "plink",
     "version": "0.1.0",
     "orientation": "portrait",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "ios": { "supportsTablet": false, "bundleIdentifier": "app.plink.hydration" },
-    "android": { "package": "app.plink.hydration" },
-    "plugins": ["expo-router", ["expo-notifications", { "color": "#1E88E5" }],
-      ["expo-media-library", { "savePhotosPermission": "Allow Plink to save your share images.", "isAccessMediaLocationEnabled": false }]],
-    "web": { "bundler": "metro", "output": "single" },
+    "backgroundColor": "#F3F8FC",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "app.plink.hydration",
+      "buildNumber": "1",
+      "infoPlist": { "ITSAppUsesNonExemptEncryption": false }
+    },
+    "android": {
+      "package": "app.plink.hydration",
+      "versionCode": 1,
+      "blockedPermissions": ["android.permission.READ_MEDIA_VISUAL_USER_SELECTED"],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "monochromeImage": "./assets/monochrome-icon.png",
+        "backgroundColor": "#1B6AD6"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-dev-client",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 180,
+          "resizeMode": "contain",
+          "backgroundColor": "#F3F8FC",
+          "dark": { "image": "./assets/splash-icon.png", "backgroundColor": "#0A1520" }
+        }
+      ],
+      ["expo-notifications", { "icon": "./assets/notification-icon.png", "color": "#1B6AD6" }],
+      ["expo-media-library", { "photosPermission": false, "savePhotosPermission": "Allow Plink to save your share images to your photos.", "isAccessMediaLocationEnabled": false, "granularPermissions": [] }]
+    ],
+    "web": { "bundler": "metro", "output": "single", "favicon": "./assets/favicon.png" },
     "experiments": { "typedRoutes": false }
   }
 }

@@ -5,3 +5,9 @@ dist/
 .env
 .env.local
 expo-env.d.ts
+
+# native projects are generated (CNG) from app.json
+/ios
+/android
+dist-native/
+.eas/

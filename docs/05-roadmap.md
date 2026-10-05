@@ -75,3 +75,6 @@ Known gaps overall
 - Nothing has run on a physical device or simulator; verification was Node tests plus the Chromium e2e (`npm run e2e`).
 - Profile/settings, rewards, challenges and subscription state are local only (only drink logs sync to Supabase).
 - Before launch: privacy policy/terms links on the paywall, store listings, real billing, native widgets, Health adapters.
+
+## Development-build readiness
+✅ EAS profiles, native config, original icon/splash/notification assets, scoped permissions, CI, iOS+Android bundle compile check, prebuild check. ⬜ Needs you: `eas init`, Apple/Google accounts, device registration, first install and the checklist in `docs/07-development-build.md`.

@@ -1,0 +1,21 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      # Compiles the real iOS and Android Hermes bundles (catches native-only import/syntax errors)
+      - run: npm run bundle:check
+      # Generates native projects in a scratch dir and asserts identity + permissions
+      - run: npm run prebuild:check

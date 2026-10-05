@@ -7,6 +7,7 @@ Small sips, big streaks. An original, offline-first hydration tracker built with
 - Design system: [`docs/03-design-system.md`](docs/03-design-system.md)
 - Database (Supabase, RLS): [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql)
 - Roadmap & honest status: [`docs/05-roadmap.md`](docs/05-roadmap.md)
+- Development build & device test checklist: [`docs/07-development-build.md`](docs/07-development-build.md)
 - Widgets, Health and billing (native steps): [`docs/06-widgets-health-billing.md`](docs/06-widgets-health-billing.md)
 
 ## Run
@@ -21,6 +22,8 @@ Optional cloud sync: copy `.env.example` to `.env` and set `EXPO_PUBLIC_SUPABASE
 npm run typecheck   # tsc --noEmit (strict)
 npm run lint
 npm test            # domain, store and sync tests (Node)
+npm run bundle:check   # compile real iOS + Android bundles
+npm run prebuild:check # generate native projects in a scratch dir and verify ids/permissions
 npm run e2e         # exports the web build and drives it in Chromium (onboarding → log → edit → history)
 ```
 

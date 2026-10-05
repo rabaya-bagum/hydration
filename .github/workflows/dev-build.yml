@@ -1,0 +1,30 @@
+# Manual cloud build of a development client. Requires the EXPO_TOKEN repository secret
+# (create at expo.dev > Account settings > Access tokens) and a one-time `eas init` + credentials setup.
+name: Development build
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Platform
+        type: choice
+        options: [android, ios, all]
+        default: android
+      profile:
+        description: EAS build profile
+        type: choice
+        options: [development, development-simulator, preview]
+        default: development
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - run: npm ci
+      - run: eas build --platform ${{ inputs.platform }} --profile ${{ inputs.profile }} --non-interactive --no-wait
