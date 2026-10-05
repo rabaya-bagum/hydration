@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
 import { IconButton } from '@/components/IconButton';
@@ -11,6 +12,8 @@ import { Segmented } from '@/components/Segmented';
 import { StatCard } from '@/components/StatCard';
 import { Text } from '@/components/Text';
 import { spacing } from '@/design/tokens';
+import { PremiumTeaser } from '@/components/PremiumTeaser';
+import { usePremium } from '@/hooks/usePremium';
 import { InsightsCard } from '@/features/history/InsightsCard';
 import { bestDay, timeOfDayShares } from '@/domain/insights';
 import { Breakdown } from '@/features/history/Breakdown';
@@ -38,6 +41,7 @@ function shiftMonth(day: DayKey, delta: number): DayKey {
 
 export default function HistoryScreen() {
   const router = useRouter();
+  const { premium, gate } = usePremium();
   const { today, tz, summaries, streak, goalMl } = useHydration();
   const unit = useSettingsStore((s) => s.unitSystem);
   const hour12 = useSettingsStore((s) => s.hour12);
@@ -117,6 +121,7 @@ export default function HistoryScreen() {
               : <MonthCalendar year={y} month={m} summaries={summaries} today={today} selected={selected} onSelect={(d) => { setSelected(d); setMode('day'); }} unit={unit} />}
             <Text bold>{mode === 'week' ? weekSummary(stats) : `You hit your goal ${stats.daysReached} of ${stats.days} days so far this month.`}</Text>
           </Card>
+          {mode === 'month' ? <Button label="Share monthly summary" kind="secondary" icon="📤" onPress={() => router.push({ pathname: '/share', params: { kind: 'month', month: `${y}-${String(m).padStart(2, '0')}` } })} testID="share-month" /> : null}
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md }}>
             <StatCard label="Average intake" value={formatVolume(stats.avgMl, unit)} hint="per day" />
             <StatCard label="Goal completion" value={`${Math.round(stats.completionRate * 100)}%`} hint={`${stats.daysReached} of ${stats.days} days`} />
@@ -124,7 +129,7 @@ export default function HistoryScreen() {
             <StatCard label="Longest streak" value={`${streak.longest} day${streak.longest === 1 ? '' : 's'}`} />
             <StatCard label="Avg goal time" value={avgTime} hint="when goal was reached" />
           </View>
-          <InsightsCard unit={unit} avgMl={stats.avgMl} prevAvgMl={prevStats.avgMl} shares={shares} best={best} periodLabel={mode === 'month' ? 'month' : 'week'} />
+          {premium ? <InsightsCard unit={unit} avgMl={stats.avgMl} prevAvgMl={prevStats.avgMl} shares={shares} best={best} periodLabel={mode === 'month' ? 'month' : 'week'} /> : <PremiumTeaser title="Patterns & trends" body="See when you drink most, how this week compares, and your biggest day." onPress={() => gate('analytics')} />}
           {stats.byDrink.length ? (
             <Card style={{ gap: spacing.md }}>
               <Text variant="title" accessibilityRole="header">What you drank</Text>

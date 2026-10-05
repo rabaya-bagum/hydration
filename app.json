@@ -8,7 +8,8 @@
     "userInterfaceStyle": "automatic",
     "ios": { "supportsTablet": false, "bundleIdentifier": "app.plink.hydration" },
     "android": { "package": "app.plink.hydration" },
-    "plugins": ["expo-router", ["expo-notifications", { "color": "#1E88E5" }]],
+    "plugins": ["expo-router", ["expo-notifications", { "color": "#1E88E5" }],
+      ["expo-media-library", { "savePhotosPermission": "Allow Plink to save your share images.", "isAccessMediaLocationEnabled": false }]],
     "web": { "bundler": "metro", "output": "single" },
     "experiments": { "typedRoutes": false }
   }

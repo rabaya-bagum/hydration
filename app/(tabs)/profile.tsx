@@ -14,6 +14,7 @@ import { formatVolume } from '@/domain/units';
 import { useHydration } from '@/hooks/useHydration';
 import { useProgress } from '@/hooks/useProgress';
 import { authService, useSession } from '@/services/auth';
+import { useTier } from '@/store/subscriptionStore';
 import { useSettingsStore } from '@/store/settingsStore';
 
 const MODE_LABEL = { smart: 'Smart', scheduled: 'Scheduled', interval: 'Interval' } as const;
@@ -24,6 +25,7 @@ export default function ProfileScreen() {
   const { goalMl } = useHydration();
   const session = useSession();
   const progress = useProgress();
+  const tier = useTier();
   const c = getCharacter(s.characterId);
   return (
     <Screen>
@@ -50,6 +52,13 @@ export default function ProfileScreen() {
           <Segmented value={s.unitSystem} onChange={(unitSystem) => s.patch({ unitSystem })} options={[{ value: 'metric', label: 'mL / L' }, { value: 'imperial', label: 'fl oz' }]} />
         </View>
         <SettingRow label="12-hour clock" toggle={{ value: s.hour12, onChange: (hour12) => s.patch({ hour12 }) }} />
+      </Section>
+
+      <Section title="Plink Premium">
+        <SettingRow label="Subscription" value={tier === 'premium' ? 'Premium' : 'Free'} onPress={() => router.push({ pathname: '/paywall', params: { source: 'profile' } })} testID="row-subscription" />
+        <SettingRow label="Appearance & themes" onPress={() => router.push('/settings/appearance')} testID="row-appearance" />
+        <SettingRow label="Widgets" onPress={() => router.push('/settings/widgets')} testID="row-widgets" />
+        <SettingRow label="Health integrations" onPress={() => router.push('/settings/health')} testID="row-health" />
       </Section>
 
       <Section title="Reminders">

@@ -8,11 +8,13 @@ import { Text } from '@/components/Text';
 import { CHARACTERS, COSMETICS } from '@/content/characters';
 import { spacing } from '@/design/tokens';
 import { describeUnlock, isUnlocked } from '@/domain/unlocks';
+import { usePremium } from '@/hooks/usePremium';
 import { useProgress } from '@/hooks/useProgress';
 import { useSettingsStore } from '@/store/settingsStore';
 
 export default function CharactersScreen() {
   const progress = useProgress();
+  const { premium, gate } = usePremium();
   const s = useSettingsStore();
   const cosmetic = (kind: 'accessory' | 'scene') => COSMETICS.filter((c) => c.kind === kind);
   return (
@@ -20,7 +22,7 @@ export default function CharactersScreen() {
       <ScreenHeader back title="Companions" subtitle="Unlock more as you level up and build streaks." />
       <LevelCard p={progress} />
       <View accessibilityRole="radiogroup" style={{ gap: spacing.md }}>
-        {CHARACTERS.map((c) => <MascotCard key={c.id} c={c} unlocked={isUnlocked(c.unlock, progress.unlock)} selected={s.characterId === c.id} onSelect={() => s.patch({ characterId: c.id })} />)}
+        {CHARACTERS.map((c) => <MascotCard key={c.id} c={c} unlocked={isUnlocked(c.unlock, progress.unlock)} selected={s.characterId === c.id} onSelect={() => s.patch({ characterId: c.id })} premiumLocked={!!c.premium && !premium} onPremium={() => gate('companions')} />)}
       </View>
       {(['accessory', 'scene'] as const).map((kind) => (
         <View key={kind} style={{ gap: spacing.sm }}>

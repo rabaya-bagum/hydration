@@ -8,6 +8,9 @@ import { Stepper } from '@/components/Stepper';
 import { spacing } from '@/design/tokens';
 import { dayKey, formatClock, localDate } from '@/domain/dates';
 import { formatVolume, mlToFlOz, parseVolumeInput } from '@/domain/units';
+import { canAddCustomDrink } from '@/domain/entitlements';
+import { usePremium } from '@/hooks/usePremium';
+import { useTier } from '@/store/subscriptionStore';
 import { useLogsStore } from '@/store/logsStore';
 import { useSettingsStore } from '@/store/settingsStore';
 
@@ -33,6 +36,7 @@ export function DrinkForm({ initial, submitLabel, tz, onSubmit }: Props) {
   const addCustomDrink = useSettingsStore((s) => s.addCustomDrink);
   const logs = useLogsStore((s) => s.logs);
   const imperial = unit === 'imperial';
+  const tier = useTier();
 
   const [drinkId, setDrinkId] = useState(initial?.drinkTypeId ?? 'water');
   const [containerId, setContainerId] = useState<string | undefined>(initial?.containerId);
@@ -59,8 +63,11 @@ export function DrinkForm({ initial, submitLabel, tz, onSubmit }: Props) {
     }).slice(0, 4);
   }, [logs]);
 
+  const { gate } = usePremium();
+  const customCount = drinkTypes.filter((d) => d.custom).length;
   const commitCustom = () => {
     if (!customName.trim()) return;
+    if (!canAddCustomDrink(tier, customCount)) { gate('custom-drinks'); return; }
     setDrinkId(addCustomDrink(customName, '✨').id);
     setCustomName('');
     setShowCustom(false);

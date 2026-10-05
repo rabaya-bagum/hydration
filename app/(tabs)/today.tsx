@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { HydrationHero } from '@/components/HydrationHero';
 import { Screen } from '@/components/Screen';
@@ -19,6 +21,7 @@ import { useUiStore } from '@/store/uiStore';
 import type { DrinkLog } from '@/domain/types';
 
 export default function TodayScreen() {
+  const router = useRouter();
   const { todaySummary, goalMl, todayLogs, streak, tz } = useHydration();
   const name = useSettingsStore((s) => s.name);
   const unitSystem = useSettingsStore((s) => s.unitSystem);
@@ -42,6 +45,7 @@ export default function TodayScreen() {
         </Card>
       ) : null}
       <HydrationHero totalMl={todaySummary.totalMl} goalMl={goalMl} unitSystem={unitSystem} characterId={characterId} accessoryId={accessoryId} sceneId={sceneId} />
+      {todaySummary.totalMl >= goalMl ? <Button label="Share today's win" kind="secondary" icon="📤" onPress={() => router.push({ pathname: '/share', params: { kind: 'daily' } })} testID="share-today" /> : null}
       <QuickAdd drinkId={drinkId} onDrinkChange={setDrinkId} onOpenAdd={() => setAdding(true)} />
       <View style={{ gap: spacing.sm }}>
         <Text variant="title" accessibilityRole="header">Today</Text>

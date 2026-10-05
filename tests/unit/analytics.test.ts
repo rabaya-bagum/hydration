@@ -21,6 +21,8 @@ describe('range stats', () => {
   });
   it('summary text is non-medical and plain', () => {
     expect(weekSummary({ ...r, days: 7, daysReached: 5 })).toBe('You hit your goal 5 of the last 7 days.');
+    expect(weekSummary({ ...r, days: 1, daysReached: 1 })).toBe('You hit your goal 1 of 1 day so far this week.');
+    expect(weekSummary({ ...r, days: 3, daysReached: 2 })).toBe('You hit your goal 2 of 3 days so far this week.');
     expect(weekSummary(rangeStats(new Map(), days, 'UTC'))).toMatch(/first sip/);
   });
 });

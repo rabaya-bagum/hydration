@@ -8,7 +8,8 @@ import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Button } from '@/components/Button';
 import { Text } from '@/components/Text';
-import { CHALLENGES } from '@/content/challenges';
+import { usePremium } from '@/hooks/usePremium';
+import { CHALLENGES, PREMIUM_CHALLENGE_IDS } from '@/content/challenges';
 import { spacing } from '@/design/tokens';
 import { useChallenges } from '@/hooks/useChallenges';
 import { useProgress } from '@/hooks/useProgress';
@@ -21,6 +22,8 @@ export default function ChallengesScreen() {
   const { colors } = useTheme();
   const progress = useProgress();
   const views = useChallenges();
+  const { premium } = usePremium();
+  const isLocked = (id: string) => !premium && PREMIUM_CHALLENGE_IDS.has(id) && views[id]!.state !== 'active' && views[id]!.state !== 'done';
   const open = (id: string) => router.push({ pathname: '/challenge/[id]', params: { id } });
   const group = (states: string[]) => CHALLENGES.filter((c) => states.includes(views[c.id]!.state));
   const active = group(['active']);
@@ -28,7 +31,7 @@ export default function ChallengesScreen() {
   const done = group(['done']);
   const card = (id: string) => {
     const def = CHALLENGES.find((c) => c.id === id)!;
-    return <ChallengeCard key={id} def={def} state={views[id]!.state} status={views[id]!.status} color={CATEGORY_COLOR[def.category]} onPress={() => open(id)} />;
+    return <ChallengeCard key={id} locked={isLocked(id)} def={def} state={views[id]!.state} status={views[id]!.status} color={CATEGORY_COLOR[def.category]} onPress={() => open(id)} />;
   };
   return (
     <Screen>

@@ -2,6 +2,8 @@ import { flushPending, type RemoteLogApi } from '@/data/sync';
 import { logDrink, removeLogWithUndo } from '@/features/logging/logActions';
 import { buildSummaries } from '@/domain/progress';
 import type { DrinkLog } from '@/domain/types';
+import { runHealthSync, type HealthProvider } from '@/services/health';
+import { useHealthStore } from '@/store/healthStore';
 import { useLogsStore } from '@/store/logsStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useUiStore } from '@/store/uiStore';
@@ -124,5 +126,39 @@ describe('offline sync', () => {
     const l = logDrink({ drinkTypeId: 'water', volumeMl: 250 });
     useLogsStore.getState().mergeRemote([{ ...l, volumeMl: 999, updatedAt: '2000-01-01T00:00:00.000Z' }]);
     expect(useLogsStore.getState().logs.find((x) => x.id === l.id)!.volumeMl).toBe(250);
+  });
+});
+
+
+describe('health sync', () => {
+  const fake = (fail = false) => {
+    const written = new Map<string, number>();
+    const p: HealthProvider & { written: Map<string, number>; fail: boolean } = {
+      name: 'fake', written, fail,
+      isAvailable: async () => true, requestAuthorization: async () => true,
+      writeWater: async (e) => { if (p.fail) throw new Error('denied'); written.set(e.id, e.volumeMl); },
+      deleteWater: async (id) => { if (p.fail) throw new Error('denied'); written.delete(id); },
+    };
+    return p;
+  };
+  beforeEach(() => { useHealthStore.getState().clear(); });
+
+  it('mirrors water once, ignores coffee, and removes deleted logs', async () => {
+    const p = fake();
+    const w = logDrink({ drinkTypeId: 'water', volumeMl: 300 });
+    logDrink({ drinkTypeId: 'coffee', volumeMl: 200 });
+    expect(await runHealthSync(useLogsStore.getState().logs, p)).toEqual({ written: 1, deleted: 0, failed: 0 });
+    expect(await runHealthSync(useLogsStore.getState().logs, p)).toEqual({ written: 0, deleted: 0, failed: 0 });
+    expect([...p.written.values()]).toEqual([300]);
+    removeLogWithUndo(w.id);
+    expect(await runHealthSync(useLogsStore.getState().logs, p)).toEqual({ written: 0, deleted: 1, failed: 0 });
+    expect(p.written.size).toBe(0);
+  });
+  it('keeps failures for retry', async () => {
+    const p = fake(true);
+    logDrink({ drinkTypeId: 'water', volumeMl: 300 });
+    expect((await runHealthSync(useLogsStore.getState().logs, p)).failed).toBe(1);
+    p.fail = false;
+    expect((await runHealthSync(useLogsStore.getState().logs, p)).written).toBe(1);
   });
 });

@@ -29,6 +29,9 @@ export interface SettingsState {
   characterId: string;
   accessoryId: string;
   sceneId: string;
+  themeId: string;
+  appearance: 'system' | 'light' | 'dark';
+  healthSync: boolean;
   reminders: ReminderPrefs;
   hour12: boolean;
 
@@ -46,7 +49,7 @@ const initial = {
   onboarded: false, name: '', ageRange: 'unspecified' as AgeRange, activity: 'moderate' as ActivityLevel,
   climate: 'mild' as Climate, exerciseDays: 2, caffeineCups: 1, unitSystem: 'metric' as UnitSystem,
   goalMl: 2200, goalHistory: [] as GoalHistoryEntry[], weighting: false, containers: DEFAULT_CONTAINERS,
-  drinkTypes: DEFAULT_DRINK_TYPES, favoriteDrinkIds: ['water', 'tea', 'coffee', 'juice'], characterId: 'otto', accessoryId: 'none', sceneId: 'day',
+  drinkTypes: DEFAULT_DRINK_TYPES, favoriteDrinkIds: ['water', 'tea', 'coffee', 'juice'], characterId: 'otto', accessoryId: 'none', sceneId: 'day', themeId: 'lagoon', appearance: 'system' as const, healthSync: false,
   reminders: DEFAULT_REMINDER_PREFS, hour12: false,
 };
 
@@ -54,7 +57,7 @@ const initial = {
 export function migrateSettings(old: Partial<SettingsState>): SettingsState {
   const have = new Set((old.drinkTypes ?? []).map((d) => d.id));
   const missing = DEFAULT_DRINK_TYPES.filter((d) => !have.has(d.id));
-  return { ...initial, ...old, drinkTypes: [...(old.drinkTypes ?? DEFAULT_DRINK_TYPES), ...missing], accessoryId: old.accessoryId ?? 'none', sceneId: old.sceneId ?? 'day' } as SettingsState;
+  return { ...initial, ...old, drinkTypes: [...(old.drinkTypes ?? DEFAULT_DRINK_TYPES), ...missing], accessoryId: old.accessoryId ?? 'none', sceneId: old.sceneId ?? 'day', themeId: old.themeId ?? 'lagoon', appearance: old.appearance ?? 'system', healthSync: old.healthSync ?? false } as SettingsState;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -86,7 +89,7 @@ export const useSettingsStore = create<SettingsState>()(
     {
       name: 'plink.settings.v1',
       storage: jsonStorage,
-      version: 2,
+      version: 3,
       // v1 -> v2: new built-in drinks and cosmetics for users who already have saved settings
       migrate: (persisted) => migrateSettings(persisted as Partial<SettingsState>),
       partialize: ({ patch: _p, setGoal: _s, goalFor: _g, patchReminders: _r, upsertContainer: _u, removeContainer: _x, addCustomDrink: _a, resetAll: _ra, ...data }) => data,

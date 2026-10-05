@@ -58,4 +58,20 @@ Known gaps in Phase 2
 - Weekday-average insight and premium flags on challenges/characters are deferred to Phase 3 with the paywall.
 
 ## Phase 3 — Growth
-18 Widgets · 19 Share cards · 20 Health integration · 21 Subscription · 22 Premium themes
+| # | Item | Status | Notes |
+|---|---|---|---|
+| 18 | Widgets | 🟡 | data contract, bridge, deep-link quick-add and in-app previews are built and tested; **native WidgetKit/Glance widgets are not built** (need a dev build) — see `docs/06-widgets-health-billing.md` |
+| 19 | Share cards | ✅ | daily / streak / challenge / month; Share, Save image, Copy; name and amounts off by default; verified on web (image downloaded, clipboard copy). Native Share/Save/Copy paths are not run on a device |
+| 20 | Health integration | 🟡 | provider boundary + idempotent sync tested with a fake provider; **no HealthKit/Health Connect adapter yet** |
+| 21 | Subscription | 🟡 | paywall, entitlements, restore, gating applied across the app; **sandbox only, no real billing** (RevenueCat adapter not written) |
+| 22 | Premium themes | ✅ | 3 premium themes + light/dark/system mode; contrast of every theme checked in tests |
+
+Decisions
+- Basic JSON export of your own data stays free (it is your data); CSV is the premium export option.
+- Unlocking by level/streak still applies; Koi and Bubbles additionally need Premium.
+- The widget deep link is deliberately narrow (exact vessel sizes, water only, cooldown).
+
+Known gaps overall
+- Nothing has run on a physical device or simulator; verification was Node tests plus the Chromium e2e (`npm run e2e`).
+- Profile/settings, rewards, challenges and subscription state are local only (only drink logs sync to Supabase).
+- Before launch: privacy policy/terms links on the paywall, store listings, real billing, native widgets, Health adapters.

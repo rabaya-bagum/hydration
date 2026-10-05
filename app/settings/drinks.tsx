@@ -8,6 +8,9 @@ import { ScreenHeader } from '@/components/ScreenHeader';
 import { Text } from '@/components/Text';
 import { TextField } from '@/components/TextField';
 import { spacing } from '@/design/tokens';
+import { canAddCustomDrink } from '@/domain/entitlements';
+import { usePremium } from '@/hooks/usePremium';
+import { useTier } from '@/store/subscriptionStore';
 import { useSettingsStore } from '@/store/settingsStore';
 
 const MAX_FAVORITES = 4;
@@ -18,6 +21,8 @@ export default function DrinkSettings() {
   const patch = useSettingsStore((s) => s.patch);
   const addCustom = useSettingsStore((s) => s.addCustomDrink);
   const [name, setName] = useState('');
+  const tier = useTier();
+  const { gate } = usePremium();
   const toggle = (id: string) => {
     if (favs.includes(id)) { if (favs.length > 1) patch({ favoriteDrinkIds: favs.filter((x) => x !== id) }); return; }
     if (favs.length < MAX_FAVORITES) patch({ favoriteDrinkIds: [...favs, id] });
@@ -31,8 +36,9 @@ export default function DrinkSettings() {
       <Text variant="small" muted>{favs.length}/{MAX_FAVORITES} selected</Text>
       <Card style={{ gap: spacing.md }}>
         <Text variant="title">Add your own drink</Text>
+        {tier === 'free' ? <Text variant="small" muted>Free plan: up to 2 custom drinks.</Text> : null}
         <TextField label="Name" value={name} onChangeText={setName} maxLength={24} />
-        <Button label="Add drink" kind="secondary" disabled={!name.trim()} onPress={() => { const d = addCustom(name, '✨'); if (favs.length < MAX_FAVORITES) patch({ favoriteDrinkIds: [...favs, d.id] }); setName(''); }} />
+        <Button label="Add drink" kind="secondary" disabled={!name.trim()} onPress={() => { if (!canAddCustomDrink(tier, drinkTypes.filter((x) => x.custom).length)) { gate('custom-drinks'); return; } const d = addCustom(name, '✨'); if (favs.length < MAX_FAVORITES) patch({ favoriteDrinkIds: [...favs, d.id] }); setName(''); }} />
       </Card>
     </Screen>
   );

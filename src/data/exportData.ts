@@ -13,3 +13,18 @@ export function buildExport(settings: SettingsState, logs: DrinkLog[], rewards?:
     logs: logs.filter((l) => !l.deletedAt).map(({ deletedAt: _d, ...l }) => l),
   };
 }
+
+const csvCell = (v: string | number) => {
+  const s = String(v);
+  // quote fields containing separators/quotes/newlines; also neutralise spreadsheet formula injection
+  const safe = /^[=+\-@\t\r]/.test(s) ? `'${s}` : s;
+  return /[",\n\r]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
+};
+
+/** Premium: one row per live log, local time of the log's own timezone. */
+export function buildCsv(logs: DrinkLog[], drinkName: (id: string) => string): string {
+  const header = ['logged_at_utc', 'timezone', 'drink', 'volume_ml', 'counted_ml', 'source'];
+  const rows = logs.filter((l) => !l.deletedAt).sort((a, b) => a.loggedAt.localeCompare(b.loggedAt))
+    .map((l) => [l.loggedAt, l.tz, drinkName(l.drinkTypeId), l.volumeMl, l.hydrationMl, l.source].map(csvCell).join(','));
+  return [header.join(','), ...rows].join('\n');
+}

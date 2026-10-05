@@ -35,7 +35,9 @@ function chromePath() {
 (async () => {
   const server = await serve();
   const browser = await chromium.launch({ executablePath: chromePath() });
-  const page = await (await browser.newContext({ viewport: { width: 390, height: 844 } })).newPage();
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, acceptDownloads: true });
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: `http://localhost:${PORT}` });
+  const page = await context.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text().slice(0, 200)));
@@ -115,6 +117,10 @@ function chromePath() {
 
     // start a challenge, see it on Today
     await page.getByTestId('challenge-steady-sipper').click();
+    await page.getByTestId('start-challenge').click(); // premium challenge on the free plan -> paywall
+    await page.waitForSelector('text=Unlock everything Plink can do');
+    await page.goBack(); await page.goBack();
+    await page.getByTestId('challenge-bottle-buddy').click();
     await page.getByTestId('start-challenge').click();
     await page.waitForSelector('[aria-label="1 of 5 days completed"]', { timeout: 5000 }); // today already has 4+ drinks -> 1 of 5 days
     await shot('challenge-progress');
@@ -139,7 +145,7 @@ function chromePath() {
     await shot('characters');
     await page.goBack();
     await page.getByTestId('tab-today').click();
-    assert.ok(await page.getByTestId('challenge-steady-sipper').first().isVisible(), 'active challenge card on Today');
+    assert.ok(await page.getByTestId('challenge-bottle-buddy').first().isVisible(), 'active challenge card on Today');
     await shot('today-with-challenge');
 
     // persistence
@@ -150,7 +156,7 @@ function chromePath() {
     // history
     await page.getByTestId('tab-history').click();
     await page.waitForSelector('text=Goal completion'); await shot('history-week');
-    assert.ok(await page.getByText('You hit your goal 1 of the last 7 days.').isVisible());
+    assert.ok(await page.getByText(/You hit your goal 1 of (the last )?\d+ days?/).first().isVisible());
     await page.getByText('Monthly', { exact: true }).click(); await page.waitForTimeout(300); await shot('history-month');
     await page.getByText('Daily', { exact: true }).click(); await page.waitForTimeout(300); await shot('history-day');
 
@@ -164,6 +170,77 @@ function chromePath() {
     await page.getByTestId('tab-profile').click();
     await page.getByTestId('row-reminders').click();
     await page.waitForSelector('text=Enable reminders'); await shot('reminders');
+
+    // ---- Phase 3 ----
+    await page.goBack();
+    // free tier: advanced analytics is a teaser, never a blocker for core features
+    await page.getByTestId('tab-history').click();
+    await page.getByText('Weekly', { exact: true }).click();
+    await page.waitForSelector('text=Patterns & trends'); await shot('history-locked-insights');
+
+    // paywall: restore finds nothing, then purchase annual (sandbox)
+    await page.getByTestId('tab-profile').click();
+    await page.getByTestId('row-subscription').click();
+    await page.getByTestId('restore').click();
+    await page.waitForSelector('text=No previous subscription found for this account.');
+    await shot('paywall');
+    await page.getByTestId('plan-annual').click();
+    await page.getByTestId('subscribe').click();
+    await page.waitForSelector("text=You're Premium");
+    await shot('premium-active');
+    await page.goBack();
+
+    // premium unlocks insights
+    await page.getByTestId('tab-history').click();
+    await page.getByRole('heading', { name: 'Patterns' }).waitFor();
+
+    // premium theme
+    await page.getByTestId('tab-profile').click();
+    await page.getByTestId('row-appearance').click();
+    await page.getByTestId('theme-sunset').click();
+    await page.waitForSelector('text=✓ Selected >> nth=0');
+    await shot('theme-sunset');
+    await page.goBack();
+
+    // share card: image downloads, copy works, privacy defaults hold
+    await page.getByTestId('tab-today').click();
+    await page.getByTestId('share-today').click();
+    await page.waitForSelector('text=Daily goal reached!');
+    assert.ok(!(await page.getByText('3.55', { exact: false }).count()), 'amounts hidden by default');
+    const [download] = await Promise.all([page.waitForEvent('download'), page.getByTestId('save-card').click()]);
+    assert.strictEqual(download.suggestedFilename(), 'plink-share.png');
+    const dlPath = await download.path();
+    assert.ok(fs.statSync(dlPath).size > 5000, 'downloaded image is non-trivial');
+    if (SHOTS) fs.copyFileSync(dlPath, path.join(SHOTS, 'share-card-export.png'));
+    await page.getByTestId('copy-card').click();
+    await page.waitForSelector('text=Image copied.');
+    await shot('share');
+    await page.goBack();
+
+    // widget previews (large unlocked for premium)
+    await page.getByTestId('tab-profile').click();
+    await page.getByTestId('row-widgets').click();
+    for (const size of ['small', 'medium', 'large']) assert.ok(await page.getByTestId(`widget-${size}`).first().isVisible(), `${size} widget preview`);
+    await shot('widgets');
+    await page.goBack();
+
+    // health: honest unavailable state
+    await page.getByTestId('row-health').click();
+    await page.waitForSelector('text=Not available in this build'); await shot('health');
+
+    // widget deep link logs one vessel-sized glass of water
+    await page.goto(`http://localhost:${PORT}/`);
+    await page.waitForSelector('[data-testid="hero-summary"]', { timeout: 15000 });
+    const before = await hero();
+    await page.goto(`http://localhost:${PORT}/log?ml=250`);
+    await page.waitForSelector('[data-testid="hero-summary"]', { timeout: 15000 });
+    await page.waitForTimeout(500);
+    const after = await hero();
+    assert.notStrictEqual(before, after, 'deep link logged a drink');
+    await page.goto(`http://localhost:${PORT}/log?ml=301`);
+    await page.waitForSelector('[data-testid="hero-summary"]', { timeout: 15000 });
+    await page.waitForTimeout(500);
+    assert.strictEqual(await hero(), after, 'non-vessel size is ignored');
     assert.deepStrictEqual(errors, [], `browser errors: ${errors.join(' | ')}`);
     console.log('e2e: all checks passed');
   } catch (e) {

@@ -1,5 +1,7 @@
 import { View } from 'react-native';
 import { AchievementBadge } from '@/components/AchievementBadge';
+import { useRouter } from 'expo-router';
+import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { LevelCard } from '@/components/LevelCard';
 import { Screen } from '@/components/Screen';
@@ -13,6 +15,7 @@ import { useProgress } from '@/hooks/useProgress';
 import { useRewardsStore } from '@/store/rewardsStore';
 
 export default function AchievementsScreen() {
+  const router = useRouter();
   const ledger = useRewardsStore((s) => s.ledger);
   const progress = useProgress();
   const { streak } = useHydration();
@@ -27,6 +30,7 @@ export default function AchievementsScreen() {
         <Text>Current {streak.current} · Longest {streak.longest}</Text>
         <Text variant="small" muted>{next ? `Next milestone: ${next} days.` : 'You have passed every milestone!'} A missed day just starts a fresh run.</Text>
       </Card>
+      {streak.current >= 1 ? <Button label="Share my streak" kind="secondary" icon="📤" onPress={() => router.push({ pathname: '/share', params: { kind: 'streak' } })} testID="share-streak" /> : null}
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, justifyContent: 'space-between' }}>
         {ACHIEVEMENTS.map((a) => <AchievementBadge key={a.id} a={a} earned={!!ledger[`ach:${a.id}`]} />)}
       </View>

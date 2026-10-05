@@ -7,6 +7,7 @@ Small sips, big streaks. An original, offline-first hydration tracker built with
 - Design system: [`docs/03-design-system.md`](docs/03-design-system.md)
 - Database (Supabase, RLS): [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql)
 - Roadmap & honest status: [`docs/05-roadmap.md`](docs/05-roadmap.md)
+- Widgets, Health and billing (native steps): [`docs/06-widgets-health-billing.md`](docs/06-widgets-health-billing.md)
 
 ## Run
 ```bash

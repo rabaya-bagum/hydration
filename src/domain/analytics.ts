@@ -41,5 +41,6 @@ export function rangeStats(summaries: Map<DayKey, DailySummary>, days: DayKey[],
 /** Plain-language, non-medical summary. */
 export function weekSummary(stats: RangeStats): string {
   if (stats.loggedDays === 0) return 'No drinks logged yet this week. Your first sip will show up here.';
-  return `You hit your goal ${stats.daysReached} of the last ${stats.days} days.`;
+  const days = `${stats.days} day${stats.days === 1 ? '' : 's'}`;
+  return stats.days < 7 ? `You hit your goal ${stats.daysReached} of ${days} so far this week.` : `You hit your goal ${stats.daysReached} of the last ${days}.`;
 }

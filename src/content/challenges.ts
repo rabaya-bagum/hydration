@@ -18,3 +18,6 @@ export const CATEGORY_LABEL: Record<ChallengeDef['category'], string> = {
 };
 
 export const getChallenge = (id: string) => CHALLENGES.find((c) => c.id === id);
+
+/** Challenges beyond the first four are premium. Already-started or completed ones stay usable. */
+export const PREMIUM_CHALLENGE_IDS = new Set(['caffeine-balance', 'evening-wind-down', 'steady-sipper']);

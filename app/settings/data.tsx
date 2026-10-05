@@ -6,9 +6,11 @@ import { Card } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Text } from '@/components/Text';
-import { buildExport } from '@/data/exportData';
+import { buildCsv, buildExport } from '@/data/exportData';
 import { supabase } from '@/data/supabase';
 import { spacing } from '@/design/tokens';
+import { usePremium } from '@/hooks/usePremium';
+import { useSubscriptionStore } from '@/store/subscriptionStore';
 import { useLogsStore } from '@/store/logsStore';
 import { useRewardsStore } from '@/store/rewardsStore';
 import { useSettingsStore } from '@/store/settingsStore';
@@ -18,11 +20,22 @@ export default function DataSettings() {
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
+  const { premium, gate } = usePremium();
 
   const exportData = async () => {
     try {
       const json = JSON.stringify(buildExport(useSettingsStore.getState(), useLogsStore.getState().logs, useRewardsStore.getState()), null, 2);
       await Share.share({ title: 'Plink data export', message: json });
+    } catch {
+      useUiStore.getState().showToast('Could not open the share sheet.');
+    }
+  };
+
+  const exportCsv = async () => {
+    if (!gate('csv-export')) return;
+    const names = new Map(useSettingsStore.getState().drinkTypes.map((d) => [d.id, d.name]));
+    try {
+      await Share.share({ title: 'Plink drinks (CSV)', message: buildCsv(useLogsStore.getState().logs, (id) => names.get(id) ?? id) });
     } catch {
       useUiStore.getState().showToast('Could not open the share sheet.');
     }
@@ -40,6 +53,7 @@ export default function DataSettings() {
     }
     useLogsStore.getState().clear();
     useRewardsStore.getState().clear();
+    useSubscriptionStore.getState().reset();
     useSettingsStore.getState().resetAll();
     setBusy(false);
     router.replace('/welcome');
@@ -56,7 +70,8 @@ export default function DataSettings() {
       <Card style={{ gap: spacing.md }}>
         <Text variant="title">Export</Text>
         <Text muted>Get a JSON copy of your settings and every drink you've logged.</Text>
-        <Button label="Export my data" kind="secondary" onPress={exportData} testID="export-data" />
+        <Button label="Export my data (JSON)" kind="secondary" onPress={exportData} testID="export-data" />
+        <Button label={premium ? 'Export as CSV' : 'Export as CSV 🔒'} kind="secondary" onPress={exportCsv} testID="export-csv" />
       </Card>
       <Card style={{ gap: spacing.md }}>
         <Text variant="title">Delete</Text>

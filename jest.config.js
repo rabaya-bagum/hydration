@@ -3,6 +3,6 @@ module.exports = {
   testEnvironment: 'node',
   transform: { '^.+\\.[jt]sx?$': ['babel-jest', { presets: ['babel-preset-expo'] }] },
   setupFiles: ['<rootDir>/tests/setup.ts'],
-  moduleNameMapper: { '^@/(.*)$': '<rootDir>/src/$1' },
+  moduleNameMapper: { '^@/(.*)$': '<rootDir>/src/$1', '^expo/virtual/env$': '<rootDir>/tests/envStub.js' },
   testMatch: ['<rootDir>/tests/**/*.test.ts?(x)'],
 };

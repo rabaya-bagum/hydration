@@ -11,6 +11,7 @@ import { Text } from '@/components/Text';
 import { spacing } from '@/design/tokens';
 import { formatMinutes } from '@/domain/dates';
 import { fromMinutes, planReminders, REMINDER_LIMITS, toMinutes, type ReminderMode } from '@/domain/reminders';
+import { usePremium } from '@/hooks/usePremium';
 import { useHydration } from '@/hooks/useHydration';
 import { analytics } from '@/services/analytics';
 import { notificationsSupported, requestPermission } from '@/services/notifications';
@@ -24,6 +25,7 @@ export default function ReminderSettings() {
   const patch = useSettingsStore((s) => s.patchReminders);
   const hour12 = useSettingsStore((s) => s.hour12);
   const { goalMl, todaySummary, today } = useHydration();
+  const { premium, gate } = usePremium();
   const [note, setNote] = useState<string | undefined>();
   const fmt = (hhmm: string) => formatMinutes(toMinutes(hhmm), hour12);
   const preview = useMemo(() => planReminders({ ...r, enabled: true }, { day: today, nowMin: null, consumedMl: todaySummary.totalMl, goalMl }), [r, today, todaySummary.totalMl, goalMl]);
@@ -49,7 +51,7 @@ export default function ReminderSettings() {
         <>
           <Card style={{ gap: spacing.md }}>
             <Text variant="title">Style</Text>
-            <Segmented<ReminderMode> value={r.mode} onChange={(mode) => patch({ mode })} options={[{ value: 'smart', label: 'Smart' }, { value: 'scheduled', label: 'Scheduled' }, { value: 'interval', label: 'Interval' }]} />
+            <Segmented<ReminderMode> value={r.mode} onChange={(mode) => { if (mode !== 'smart' && !gate('reminders')) return; patch({ mode }); }} options={[{ value: 'smart', label: 'Smart' }, { value: 'scheduled', label: premium ? 'Scheduled' : 'Scheduled 🔒' }, { value: 'interval', label: premium ? 'Interval' : 'Interval 🔒' }]} />
             <Text variant="small" muted>
               {r.mode === 'smart' ? 'We space reminders between wake-up and bedtime based on what is left to drink.' : r.mode === 'scheduled' ? 'Reminders at the exact times you choose.' : 'A reminder every set number of minutes while you are awake.'}
             </Text>
